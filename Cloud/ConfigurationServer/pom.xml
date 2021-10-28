@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>my.maven.project.SpringBootTemplate.cloud.configurationserver</groupId>
+	<artifactId>ConfigurationServer</artifactId>
+	<packaging>jar</packaging>
+	
+	<name>ConfigurationServer</name>
+	<description>Configuration Server</description>
+	<url>http://localhost:8888/application-config/default https://o7planning.org/en/11723/understanding-spring-cloud-config-server-with-example</url>
+	
+	<parent>
+		<groupId>my.maven.project.SpringBootTemplate.cloud</groupId>
+		<artifactId>Cloud</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<properties>
+
+	</properties>
+
+	<dependencies>
+	
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-config-server</artifactId>
+		</dependency>
+
+	</dependencies>
+
+</project>

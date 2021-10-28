@@ -1,0 +1,18 @@
+mkdir config-local-git
+cd config-local-git
+git init
+...
+git add -A
+git commit -m "Common Config for Microservice"
+
+mvn clean install spring-boot:run
+
+http://localhost:8888/application-config/default
+
+{"name":"application-config","profiles":["default"],"label":null,"version":"5db1aab9a90e8b08135c51525f2e8f2d2ab9d321","state":null,
+"propertySources":[{"name":"file:///media/D/workspaceJ2EE/Spring/SpringBootTemplate/Cloud/ConfigurationServer/config-local-git/application-config.properties",
+"source":{"management.security.enabled":"false","application.message":"Message From Default Local GIT Repository"}}]}
+
+1) Template
+   Creare un file di properties per ogni microservizio, per esempio Template.properties il cui nome deve matchare con spring.application.name del microservizio, per esempio Template
+   All'avvio del microservizio, si può provare la configurazione puntando all'url: http://localhost:8888/Template/default
