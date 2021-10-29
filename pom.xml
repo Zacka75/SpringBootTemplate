@@ -1,0 +1,126 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<groupId>it.linearsystem.dme</groupId>
+	<artifactId>digital_management_events</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	
+	<name>DME</name>
+	<description>Progetto DME - Digital Management of Events</description>
+	
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+<!-- 		<version>2.3.0.RELEASE</version> -->
+		<version>2.2.6.RELEASE</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java-version>1.8</java-version>
+		<skipTests>true</skipTests>
+		
+		<spring-cloud.version>Hoxton.SR4</spring-cloud.version>
+
+	</properties>
+	
+	<dependencies>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<scope>runtime</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<!-- ABILITA L'AUTOCOMPLETING SUL application.properties -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>		
+		
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<scope>compile</scope>
+			<optional>true</optional>
+		</dependency>
+		
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<scope>runtime</scope>
+		</dependency>  
+		
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+<!-- 	    <version>1.4.199</version> -->
+<!-- 	    java.lang.RuntimeException: Error scanning entry META-INF/versions/9/org/h2/util/Bits.class -->
+<!-- 	    It seems that your use an outdated version of Jetty that does not support multi-release jars. Jetty got support of multi-release jars in 2017 before release of H2 1.4.197. -->
+<!-- 	    https://groups.google.com/forum/#!topic/h2-database/UocTx4hBFN0 -->
+<!-- 	    	<version>1.4.196</version> -->
+	    	<scope>runtime</scope>
+        </dependency>			
+		
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.junit.vintage</groupId>
+					<artifactId>junit-vintage-engine</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		
+	</dependencies>
+	
+<!-- mvn clean install	 -->
+	<modules>
+		<module>DME_Cloud</module>
+		<module>DME_Security</module>
+		<module>DME_Microservice</module>
+	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+<!-- 				<configuration> -->
+<!-- 				    <addResources>true</addResources> -->
+<!-- 				</configuration> -->
+<!--                 <executions> -->
+<!--                     <execution> -->
+<!--                         <goals> -->
+<!--                             <goal>repackage</goal> -->
+<!--                         </goals> -->
+<!--                     </execution> -->
+<!--                 </executions> -->
+			</plugin>
+		</plugins>
+	</build>	
+	
+	<profiles>	
+	    <!-- mvn clean install -P default -->
+		<profile>
+			<id>default</id>
+			<build>
+				<defaultGoal>clean install</defaultGoal>
+			</build>
+			<modules>
+				<module>DME_Cloud</module>
+				<module>DME_Security</module>
+				<module>DME_Microservice</module>				
+			</modules>
+		</profile>
+	</profiles>	
+	
+</project>

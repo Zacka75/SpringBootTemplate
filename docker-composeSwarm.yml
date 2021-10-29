@@ -1,0 +1,32 @@
+version: '3.3'
+
+networks:
+  ssmnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+
+
+services:
+
+  apigateway:
+    image: openjdk:8-jdk-alpine
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+    ports:
+      - 8080:8080
+    extra_hosts:
+      - "eurekahost:172.23.0.2"
+    networks:
+      - ssmnet	  
+#    networks:
+#      ssmnet:
+#        ipv4_address: 172.23.0.3
+    volumes:
+      - ./ltm:/ltm
+      - ./DME_Template/target/lib:/ssm/lib	  
+      - ./DME_Template/target/DME_Template-0.0.1-SNAPSHOT.jar:/ssm/DME_Template-1.0.0.jar
+    entrypoint: ["java","-Djava.security.egd=file:/dev/./urandom","-jar","ssm/DME_Template-1.0.0.jar"]

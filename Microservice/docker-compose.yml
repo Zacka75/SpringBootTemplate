@@ -1,0 +1,67 @@
+version: '3.7'
+
+#networks:
+#  ssmnet:
+#    driver: overlay
+#
+
+#networks:
+#  ssmnet:
+#    external:
+#      name: ssmnet
+networks:
+  ssmnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16
+
+
+services:
+
+  template:
+    hostname: dmetemplate
+#	 image: "DME_Template-0.0.1-SNAPSHOT"
+#    image: openjdk:8-jdk-alpine
+#	links:
+#      - sampleeureka
+    build:
+      ./DME_Template
+    ports:
+      - 8080:8080
+    volumes:
+      - ./ltm:/ltm
+#	  - ./etc:/etc
+    networks:
+      - ssmnet
+#    networks:
+#      ssmnet:
+#        ipv4_address: 172.23.0.3	  
+#    extra_hosts:
+#      - "eurekahost:172.23.0.2"
+  #    environment:
+  #      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.23.0.2:8090/eureka
+#    environment:
+#       EUREKA_HOST: sampleeureka
+#       EUREKA_PORT: 8761
+#       SERVER_PORT: 8080
+#       SPRING_PROFILES_ACTIVE: docker
+#      - MYSQL_URL=jdbc:mysql://mysqlserver/petclinic
+#	command: ./mvnw spring-boot:run -Dspring-boot.run.profiles=mysql -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+#	
+#	mysqlserver:
+#		image: mysql:8.0.23
+#		ports:
+#		  - 3306:3306
+#		environment:
+#		  - MYSQL_ROOT_PASSWORD=
+#		  - MYSQL_ALLOW_EMPTY_PASSWORD=true
+#		  - MYSQL_USER=petclinic
+#		  - MYSQL_PASSWORD=petclinic
+#		  - MYSQL_DATABASE=petclinic
+#		volumes:
+#		  - mysql_data:/var/lib/mysql
+#		  - mysql_config:/etc/mysql/conf.d
+#volumes:
+#  mysql_data:
+#  mysql_config:

@@ -1,0 +1,11 @@
+spring:
+    application:
+      name: Template
+    cloud:
+      config:
+        enabled: true
+#        uri: http://localhost:8888
+#		 uri: http://172.22.0.3:8888
+        uri: http://configurationserver:8888
+        fail-fast: true
+            

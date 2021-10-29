@@ -1,0 +1,25 @@
+FROM ubuntu:14.04
+
+COPY schema.sql /root
+
+RUN apt-get update \
+ && apt-get install wget -yq \
+ && apt-get install nano \
+ && wget --no-check-certificate https://www.apachefriends.org/xampp-files/7.1.11/xampp-linux-x64-7.1.11-0-installer.run \
+ && mv xampp-linux-x64-7.1.11-0-installer.run /opt/ \
+ && cd /opt/ \
+ && chmod +x xampp-linux-x64-7.1.11-0-installer.run \
+ && printf 'y\n\y\n\r\n\y\n\r\n' | ./xampp-linux-x64-7.1.11-0-installer.run \
+ && cd /opt/lampp/bin \
+ && /opt/lampp/lampp start \
+ && sleep 5s \
+
+ && ./mysql -uroot -e "CREATE DATABASE andreaDB" \
+ && ./mysql -uroot -D andreaDB < /root/schema.sql \
+ && cd / \
+ && /opt/lampp/lampp reload \
+ && mkdir opt/lampp/htdocs/Ecommerce
+
+#COPY /Ecommerce /opt/lampp/htdocs/Ecommerce
+
+EXPOSE 80

@@ -1,0 +1,186 @@
+version: '3.7'
+
+# https://www.cloudsavvyit.com/14508/how-to-assign-a-static-ip-to-a-docker-container/
+networks:
+
+  ssmnet:
+    driver: bridge
+#    driver: overlay	
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16
+#    external:
+#      name: ssmnet
+
+services:
+
+  configurationserver:
+    hostname: configurationserver
+    build:
+      ./Cloud/ConfigurationServer
+    ports:
+      - 8888:8888
+    volumes:
+      - ./Cloud/ConfigurationServer/config-local-git:/config-local-git
+    networks:
+      ssmnet:
+        ipv4_address: 172.22.0.3
+
+  servicediscovery:
+    hostname: servicediscovery
+    build:
+      ./Cloud/ServiceDiscovery
+    ports:
+      - 8761:8761
+    networks:
+      ssmnet:
+        ipv4_address: 172.22.0.4
+
+  apigateway:
+    hostname: apigateway
+    build:
+      ./Cloud/APIGateway
+    ports:
+      - 8080:8080
+    networks:
+      - ssmnet
+    extra_hosts:
+      - "eurekaserver:172.22.0.4"
+      - "autorizationserver:172.22.0.5"
+    depends_on:
+      - servicediscovery
+
+  circuitbreaker:
+    hostname: circuitbreaker
+    build:
+      ./Cloud/CircuitBreaker
+    ports:
+      - 8083:8083
+    networks:
+      - ssmnet
+    extra_hosts:
+      - "eurekaserver:172.22.0.4"
+    depends_on:
+      - servicediscovery
+
+  authorizationserver:
+    hostname: authorizationserver
+    build:
+      ./Security/SpringBootOAuth2OpenIDJWTServer
+    ports:
+      - 8081:8081
+    networks:
+      ssmnet:
+        ipv4_address: 172.22.0.5
+    extra_hosts:
+      - "eurekaserver:172.22.0.4"
+    depends_on:
+      - servicediscovery
+      - mysqlserver
+
+  template:
+    hostname: template
+#	 image: "Template-0.0.1-SNAPSHOT"
+#    image: openjdk:8-jdk-alpine
+#	links:
+#      - sampleeureka
+    build:
+      ./Microservice/Template
+#      context: . #yaml.scanner.ScannerError: mapping values are not allowed here
+#      dockerfile: ./Microservice/Template/Dockerfile
+    ports:
+      - 8082:8082
+#    volumes:
+#      - ./ltm:/ltm
+#	  - ./etc:/etc
+    networks:
+      - ssmnet  
+    extra_hosts:
+      - "configurationserver:172.22.0.3"
+      - "eurekaserver:172.22.0.4"  
+    depends_on:
+      - configurationserver
+      - servicediscovery  
+      - mysqlserver
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://172.22.0.4:8761/eureka
+      EUREKA_HOST: eurekaserver
+      EUREKA_PORT: 8761
+      SERVER_PORT: 8082
+      SPRING_PROFILES_ACTIVE: docker
+#      - MYSQL_URL=jdbc:mysql://mysqlserver/petclinic
+#	command: ./mvnw spring-boot:run -Dspring-boot.run.profiles=mysql -Dspring-boot.run.jvmArguments="-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000"
+
+  mysqlserver:
+#    image: mysql:8.0.23
+    build: ./database/
+#    build: ./build/mysql/ #this is pointing to my Dockerfile
+    container_name: mysqlcontainer
+#    command: --default-authentication-plugin=mysql_native_password # NON CONOSCE QUESTA PROPERTY
+#    command: mysqld --user=root
+#    command: mysqld --init-file="/tmp/database/install_db.sql"
+#    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+#    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password --init-file /docker-entrypoint-initdb.d/init.sql  
+#    restart: always
+#    env_file: .env
+    ports:
+      - 3306:3306
+    networks:
+      ssmnet:
+        ipv4_address: 172.22.0.6
+    environment:
+#      - MYSQL_PORT=3306
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_ALLOW_EMPTY_PASSWORD=true
+      - MYSQL_USER=andrea
+      - MYSQL_PASSWORD=andrea
+      - MYSQL_DATABASE=andreaDB
+#    volumes:
+#      - ./mysql/data:/var/lib/mysql
+#      - ./mysql/my.cnf:/etc/my.cnf
+#      - mysql_data:/var/lib/mysql # The designated data directory /var/lib/mysql/ is unusable. You can remove all files that the server added to it.
+#      - mysql_config:/etc/mysql/conf.d
+#      - ./Security/SpringBootOAuth2OpenIDJWTServer/src/main/resources/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql:ro
+#      - ./Security/SpringBootOAuth2OpenIDJWTServer/src/main/resources/data.sql:/docker-entrypoint-initdb.d/2_data.sql:ro
+#      - db-data:/docker-entrypoint-initdb.d
+#      - ./configs/mysql/data:/docker-entrypoint-initdb.d
+#      - ./docker/mysql/data:/var/lib/mysql:rw
+#      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+#      - ./Security/SpringBootOAuth2OpenIDJWTServer/src/main/resources/data:/var/lib/mysql:rw
+#       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+#         - /home/user/db/mysql/data:/var/lib/mysql
+#         - /home/user/db/mysql/init:/docker-entrypoint-initdb.d/:ro
+#    healthcheck:
+#      test: "/usr/bin/mysql --user=root --password=password --execute \"SHOW DATABASES;\""
+#      interval: 2s
+#      timeout: 20s
+#      retries: 10
+
+#volumes:
+#    mysql_data:
+#    mysql_config:
+#    db-data:
+#      external: true
+
+#  postgres:
+#    image: postgres:11.2-alpine
+#    environment:
+#      POSTGRES_PASSWORD: root
+#      POSTGRES_USER: root
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - ./init-db/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+#      - ./databasePSQL/schema.sql:/docker-entrypoint-initdb.d/1-schema.sql
+
+#	mariadb:
+#	  image: mariadb
+#	  ports:
+#	     - 3306:3306
+#	  expose:
+#	     - 3306
+#	  volumes:
+#	     - ./docker/mariadb/data:/var/lib/mysql:rw
+#	     - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+#	  environment:
+#	     MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
